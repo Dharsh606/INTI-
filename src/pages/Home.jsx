@@ -2,10 +2,124 @@ import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { fetchHomepageContent, fetchHeritageStats, fetchAllProjects, submitConsultation } from '../lib/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
 
 function Home() {
+  const [toast, setToast] = useState({ message: '', type: 'success' });
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(prev => prev.message === message ? { message: '', type: 'success' } : prev);
+    }, 4000);
+  };
+
+  const CATEGORIES = [
+    { id: 'office', name: 'Office', label: '01 / Corporate Office', title: 'WORKSPACES', subtitle: 'Precision, Acoustics, and Spatial Flow' },
+    { id: 'wellness', name: 'Wellness', label: '02 / Healthcare & Wellness', title: 'WELLNESS', subtitle: 'Hygienic Precision, Light, and Cleanliness' },
+    { id: 'residential', name: 'Residential', label: '03 / Luxury Residential', title: 'RESIDENTIAL', subtitle: 'Warm Materiality, Privacy, and Elegance' },
+    { id: 'hospitality', name: 'Hospitality', label: '04 / Hospitality', title: 'HOSPITALITY', subtitle: 'Social Comfort, Ambient Detailing, and Warmth' },
+    { id: 'retail', name: 'Retail', label: '05 / High-end Retail', title: 'RETAIL', subtitle: 'Bespoke Showrooms, Sculptural Brand Identity' },
+    { id: 'institutional', name: 'Institutional', label: '06 / Institutional & Research', title: 'INSTITUTIONAL', subtitle: 'Learning Spaces, Interactive Pods, and Science' },
+  ];
+
+  // ----------------------------------------------------
+  // React States for Dynamic Supabase Data
+  // ----------------------------------------------------
+  const [homeContent, setHomeContent] = useState({
+    hero_title: 'Interiors That Feel Alive',
+    hero_subtitle: 'Luxury interior design, crafted with editorial calm and human warmth.',
+    signature_title: 'Designed For The Way You Live',
+    signature_subtitle: 'Bespoke interiors shaped through spatial clarity, natural materiality, and refined detailing — every room designed to feel balanced, tactile, and timeless.',
+    signature_img: '/assets/photo/bg1.jpg',
+    signature_watch_img: '/assets/photo/watch.jpg'
+  });
+
+  const [statsContent, setStatsContent] = useState({
+    completed_projects: '50+',
+    years_experience: '15+',
+    materials_curated: '20+',
+    heritage_body_1: 'INTI creates interiors that merge architecture, atmosphere, and lifestyle. Each project is guided by proportion, light, and a quiet sense of luxury.',
+    heritage_body_2: 'From residences to hospitality spaces, the studio translates ideas into spaces that feel intimate, elegant, and deeply considered.',
+    heritage_img: '/assets/photo/q1.jpg'
+  });
+
+  const [projects, setProjects] = useState([
+    {
+      slug: 'hul-hosur-conf',
+      title: 'HUL Hosur - Conference Room',
+      category: 'Office',
+      type: 'Boardroom Case Study',
+      hero_img: '/assets/photo/project-1/img-4.jpg'
+    },
+    {
+      slug: 'hul-hosur-fm',
+      title: 'HUL Hosur - FM Office Room',
+      category: 'Office',
+      type: 'Executive Office Case Study',
+      hero_img: '/assets/photo/project-2/img-1.jpg'
+    },
+    {
+      slug: 'ge-hosur-conf-2',
+      title: 'GE Hosur - Executive Boardroom',
+      category: 'Office',
+      type: 'Boardroom Case Study',
+      hero_img: '/assets/photo/project-6/img-1.jpg'
+    },
+    {
+      slug: 'rb-hosur-conf',
+      title: 'RB Hosur - Executive Conference Room',
+      category: 'Office',
+      type: 'Conference Case Study',
+      hero_img: '/assets/photo/project-3/img-1.jpg'
+    },
+    {
+      slug: 'hlrc-bangalore',
+      title: 'HLRC Bangalore - Research Lab',
+      category: 'Wellness',
+      type: 'Research Case Study',
+      hero_img: '/assets/photo/project-5/img-1.jpg'
+    },
+    {
+      slug: 'rb-hosur-hygiene',
+      title: 'RB Hosur - Hygiene Station Entrance',
+      category: 'Wellness',
+      type: 'Entrance Case Study',
+      hero_img: '/assets/photo/project-4/img-1.jpg'
+    }
+  ]);
+
+  // Load content dynamically from Supabase
+  useEffect(() => {
+    const loadDbData = async () => {
+      // 1. Homepage Content
+      try {
+        const home = await fetchHomepageContent();
+        if (home) setHomeContent(home);
+      } catch (err) {
+        console.warn("Could not load homepage content from Supabase: ", err.message);
+      }
+
+      // 2. Heritage Stats
+      try {
+        const stats = await fetchHeritageStats();
+        if (stats) setStatsContent(stats);
+      } catch (err) {
+        console.warn("Could not load heritage stats from Supabase: ", err.message);
+      }
+
+      // 3. Projects
+      try {
+        const dbProjects = await fetchAllProjects();
+        if (dbProjects && dbProjects.length > 0) setProjects(dbProjects);
+      } catch (err) {
+        console.warn("Could not load projects from Supabase: ", err.message);
+      }
+    };
+    loadDbData();
+  }, []);
+
   // ----------------------------------------------------
   // React States for Interactive Elements
   // ----------------------------------------------------
@@ -23,8 +137,9 @@ function Home() {
   const [mbMaterial, setMbMaterial] = useState('marble');
   const [mbRoom, setMbRoom] = useState('living');
 
-  // Floating CTA visibility
-  const [floatingCtaVisible, setFloatingCtaVisible] = useState(false);
+  // Legal Modal States
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
 
   // Refs for sequential videos
   const video1Ref = useRef(null);
@@ -239,7 +354,7 @@ function Home() {
       ctx.revert();
       clearTimeout(refreshTimer);
     };
-  }, []);
+  }, [projects, homeContent, statsContent]); // Refresh triggers whenever projects, homeContent, or statsContent dynamic database loads!
 
   // ----------------------------------------------------
   // Collection Tab Trigger Animations (GSAP Crossfade)
@@ -272,14 +387,16 @@ function Home() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const imageSources = [
-      '/assets/photo/bg1.jpg',
-      '/assets/photo/q1.jpg',
-      '/assets/photo/watch.jpg',
-      '/assets/photo/z1.jpg',
-      '/assets/photo/ethos-bg.jpg',
-      '/assets/photo/ethos-bg-rs.jpg',
-    ];
+    const imageSources = homeContent?.architecture_imgs && homeContent.architecture_imgs.length === 6
+      ? homeContent.architecture_imgs
+      : [
+          '/assets/photo/bg1.jpg',
+          '/assets/photo/q1.jpg',
+          '/assets/photo/watch.jpg',
+          '/assets/photo/z1.jpg',
+          '/assets/photo/ethos-bg.jpg',
+          '/assets/photo/ethos-bg-rs.jpg',
+        ];
     const images = [];
     let imagesLoaded = 0;
     const frameObject = { frame: 0 };
@@ -372,7 +489,7 @@ function Home() {
       window.removeEventListener('resize', setCanvasSize);
       if (scrollTriggerInstance) scrollTriggerInstance.kill();
     };
-  }, []);
+  }, [homeContent.architecture_imgs]);
 
   // ----------------------------------------------------
   // Sequential video player initiation
@@ -436,11 +553,6 @@ function Home() {
         gsap.to(nav, { y: 0, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
       }
 
-      if (scroll > window.innerHeight * 0.8) {
-        setFloatingCtaVisible(true);
-      } else {
-        setFloatingCtaVisible(false);
-      }
       lastScroll = scroll;
     };
 
@@ -449,15 +561,27 @@ function Home() {
   }, []);
 
   // ----------------------------------------------------
-  // Submit reservation form
+  // Submit reservation form to Supabase
   // ----------------------------------------------------
-  const handleReservationSubmit = (e) => {
+  const handleReservationSubmit = async (e) => {
     e.preventDefault();
     const btn = document.querySelector('.form-submit-btn');
     if (!btn) return;
     btn.textContent = 'Sending…';
     btn.disabled = true;
-    setTimeout(() => {
+
+    const formData = {
+      firstName: e.target['first-name'].value,
+      lastName: e.target['last-name'].value,
+      email: e.target['email'].value,
+      phone: e.target['phone'].value,
+      projectType: e.target['project-type'].value,
+      message: e.target['message'].value,
+    };
+
+    try {
+      await submitConsultation(formData);
+      showToast("Your consultation request has been submitted successfully!");
       btn.textContent = 'Request Sent ✓';
       btn.style.background = 'rgba(212,175,122,0.3)';
       btn.style.color = '#d4af7a';
@@ -468,13 +592,17 @@ function Home() {
         btn.disabled = false;
         btn.style.background = '';
         btn.style.color = '';
+        e.target.reset();
       }, 2000);
-    }, 1400);
+    } catch (err) {
+      showToast("Submission failed: " + err.message, 'error');
+      btn.textContent = 'Request Consultation';
+      btn.disabled = false;
+    }
   };
 
   return (
     <>
-
       {/* NAV */}
       <nav className="nav" id="main-nav">
         <div className="nav-logo-container">
@@ -483,7 +611,7 @@ function Home() {
           </a>
         </div>
         <div className="nav-links-right">
-          <div class="nav-links">
+          <div className="nav-links">
             <a href="#signature" onClick={(e) => handleNavClick(e, 'signature')}>Signature</a>
             <a href="#heritage" onClick={(e) => handleNavClick(e, 'heritage')}>Heritage</a>
             <a href="#collection" onClick={(e) => handleNavClick(e, 'collection')}>Collection</a>
@@ -497,11 +625,11 @@ function Home() {
       {/* HERO */}
       <section className="hero" id="hero">
         <div className="hero-bg">
-          <video ref={video1Ref} className="bg-video" id="hero-video-1" muted playsinline>
-            <source src="/hero-video.mp4" type="video/mp4" />
+          <video ref={video1Ref} className="bg-video" id="hero-video-1" autoPlay muted playsInline>
+            <source src="https://res.cloudinary.com/dqonskecw/video/upload/v1782788121/0630_crwdwz.mp4" type="video/mp4" />
           </video>
-          <video ref={video2Ref} className="bg-video bg-video-2" id="hero-video-2" muted playsinline>
-            <source src="/assets/video2.mp4" type="video/mp4" />
+          <video ref={video2Ref} className="bg-video bg-video-2" id="hero-video-2" muted playsInline>
+            <source src="https://res.cloudinary.com/dqonskecw/video/upload/v1782888340/video2_jze9l3.mp4" type="video/mp4" />
           </video>
           <div className="hero-overlay"></div>
         </div>
@@ -510,8 +638,8 @@ function Home() {
         <div className="hero-content">
           <div className="hero-text-bg" aria-hidden="true">INTI</div>
           <div className="hero-details">
-            <h1 className="hero-title">Interiors<br /><span className="accent">That Feel Alive</span></h1>
-            <p className="hero-subtitle">Luxury interior design, crafted with editorial calm and human warmth.</p>
+            <h1 className="hero-title">{homeContent.hero_title.split(' That ')[0]}<br /><span className="accent">That {homeContent.hero_title.split(' That ')[1] || 'Feel Alive'}</span></h1>
+            <p className="hero-subtitle">{homeContent.hero_subtitle}</p>
             <div className="hero-cta-group">
               <span className="limited-edition">Selected Projects</span>
               <button className="primary-btn open-quiz-modal" onClick={() => setQuizOpen(true)}>Discover Your Style</button>
@@ -527,18 +655,18 @@ function Home() {
       {/* SIGNATURE REVEAL */}
       <section className="product-reveal" id="signature">
         <div className="product-reveal-bg">
-          <img className="product-reveal-bg-img" src="/assets/photo/bg1.jpg" alt="INTI interior space" />
+          <img className="product-reveal-bg-img" src={homeContent.signature_img} alt="INTI interior space" />
           <div className="product-reveal-overlay"></div>
         </div>
         <div className="product-reveal-content">
           <div className="product-reveal-text-bg" aria-hidden="true">PRECISION</div>
           <div className="product-reveal-watch-container">
-            <img className="product-reveal-watch" src="/assets/photo/watch.jpg" alt="INTI design detail" />
+            <img className="product-reveal-watch" src={homeContent.signature_watch_img} alt="INTI design detail" />
           </div>
           <div className="product-reveal-details">
             <span className="edition-tag">Signature Project</span>
-            <h2 class="product-reveal-title">Designed For<br /><span className="accent-gold">The Way You Live</span></h2>
-            <p className="product-reveal-subtitle">Bespoke interiors shaped through spatial clarity, natural materiality, and refined detailing — every room designed to feel balanced, tactile, and timeless.</p>
+            <h2 className="product-reveal-title">{homeContent.signature_title.split(' For ')[0]}<br /><span className="accent-gold">For {homeContent.signature_title.split(' For ')[1] || 'The Way You Live'}</span></h2>
+            <p className="product-reveal-subtitle">{homeContent.signature_subtitle}</p>
             <div className="product-reveal-cta-group">
               <button className="secondary-btn open-reserve-modal" onClick={() => setReserveOpen(true)}>Begin Your Project</button>
             </div>
@@ -546,33 +674,45 @@ function Home() {
         </div>
       </section>
 
-      {/* HERITAGE */}
-      <section className="heritage" id="heritage">
-        <div className="heritage-bg">
-          <img className="heritage-bg-img" src="/assets/photo/q1.jpg" alt="INTI studio space" />
-          <div className="heritage-overlay"></div>
-        </div>
-        <div className="heritage-content">
-          <div className="heritage-text">
-            <p className="heritage-eyebrow">Est. 2017</p>
-            <h2 className="heritage-title">A Studio<br />Built on <em>Vision</em></h2>
-            <div className="heritage-divider"></div>
-            <p className="heritage-body">INTI creates interiors that merge architecture, atmosphere, and lifestyle. Each project is guided by proportion, light, and a quiet sense of luxury.</p>
-            <p className="heritage-body">From residences to hospitality spaces, the studio translates ideas into spaces that feel intimate, elegant, and deeply considered.</p>
-            <button className="heritage-link open-reserve-modal" onClick={() => setReserveOpen(true)}>Discover Our Studio →</button>
+      {/* REDESIGNED HERITAGE */}
+      <section className="heritage" id="heritage" style={{ background: '#080808', borderTop: '1px solid rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+        <div className="heritage-redesign-container">
+          {/* Left Metrics */}
+          <div className="heritage-left-metrics">
+            <div className="heritage-metric-item">
+              <span className="metric-number">{statsContent.completed_projects}</span>
+              <span className="metric-label">Completed Projects</span>
+            </div>
+            <div className="heritage-metric-item">
+              <span className="metric-number">{statsContent.years_experience}</span>
+              <span className="metric-label">Years of Experience</span>
+            </div>
+            <div className="heritage-metric-item">
+              <span className="metric-number">{statsContent.materials_curated}</span>
+              <span className="metric-label">Material Libraries</span>
+            </div>
           </div>
-          <div className="heritage-stats">
-            <div className="heritage-stat">
-              <span className="stat-number">50+</span>
-              <span class="stat-label">Completed Projects</span>
-            </div>
-            <div className="heritage-stat">
-              <span className="stat-number">15+</span>
-              <span className="stat-label">Years of Collective Experience</span>
-            </div>
-            <div className="heritage-stat">
-              <span className="stat-number">20+</span>
-              <span className="stat-label">Material Libraries Curated</span>
+
+          {/* Center narrative text */}
+          <div className="heritage-center-text">
+            <span className="heritage-eyebrow">Est. 2007</span>
+            <h2 className="heritage-title-single">A STUDIO BUILT ON VISION</h2>
+            <div className="heritage-divider-line"></div>
+            <p className="heritage-narrative-paragraph">{statsContent.heritage_body_1}</p>
+            <p className="heritage-narrative-paragraph">{statsContent.heritage_body_2}</p>
+          </div>
+
+          {/* Right Founder Card */}
+          <div className="heritage-right-founder">
+            <div className="founder-card-premium">
+              <div className="founder-img-frame">
+                <img src={statsContent.founder_img || '/assets/photo/ethos-bg-rs.jpg'} alt="Founder Portrait" />
+              </div>
+              <div className="founder-card-meta">
+                <h3 className="founder-card-name">{statsContent.founder_name || 'Vijaya H. Reddy'}</h3>
+                <p className="founder-card-role">{statsContent.founder_role || 'Principal Designer'}</p>
+                <p className="founder-card-desc">{statsContent.founder_desc || 'Sculpting luxury spaces with architectural integrity since 2007.'}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -585,8 +725,11 @@ function Home() {
         </div>
         <div className="ethos-tabs-nav">
           <button className={`ethos-tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => switchCollectionTab('all')}>All</button>
-          <button className={`ethos-tab-btn ${activeTab === 'office' ? 'active' : ''}`} onClick={() => switchCollectionTab('office')}>Office</button>
-          <button className={`ethos-tab-btn ${activeTab === 'wellness' ? 'active' : ''}`} onClick={() => switchCollectionTab('wellness')}>Wellness</button>
+          {CATEGORIES.map(cat => (
+            <button key={cat.id} className={`ethos-tab-btn ${activeTab === cat.id ? 'active' : ''}`} onClick={() => switchCollectionTab(cat.id)}>
+              {cat.name}
+            </button>
+          ))}
         </div>
         <div className="ethos-slider-container">
           {/* ALL TAB */}
@@ -599,154 +742,55 @@ function Home() {
               </div>
             </div>
             <div className="ethos-cards-grid">
-              <Link to="/project?id=hul-hosur-conf" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-1/img-4.jpg" alt="HUL Hosur - Conference Room" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Boardroom Case Study</span>
-                </div>
-                <h3 className="project-card-title">HUL Hosur - Conference Room</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-              <Link to="/project?id=hul-hosur-fm" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-2/img-1.jpg" alt="HUL Hosur - FM Office Room" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Executive Office Case Study</span>
-                </div>
-                <h3 className="project-card-title">HUL Hosur - FM Office Room</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-              <Link to="/project?id=ge-hosur-conf-2" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-6/img-1.jpg" alt="GE Hosur - Executive Boardroom" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Boardroom Case Study</span>
-                </div>
-                <h3 className="project-card-title">GE Hosur - Executive Boardroom</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-              <Link to="/project?id=rb-hosur-conf" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-3/img-1.jpg" alt="RB Hosur - Executive Conference Room" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Conference Case Study</span>
-                </div>
-                <h3 class="project-card-title">RB Hosur - Executive Conference Room</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-              <Link to="/project?id=hlrc-bangalore" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-5/img-1.jpg" alt="HLRC Bangalore - Research Lab" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Research Case Study</span>
-                </div>
-                <h3 className="project-card-title">HLRC Bangalore - Research Lab</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-              <Link to="/project?id=rb-hosur-hygiene" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-4/img-1.jpg" alt="RB Hosur - Hygiene Station Entrance" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Entrance Case Study</span>
-                </div>
-                <h3 className="project-card-title">RB Hosur - Hygiene Station Entrance</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
+              {projects.map((proj) => (
+                <Link key={proj.slug} to={`/project?id=${proj.slug}`} className="project-card">
+                  <div className="project-card-img-wrap">
+                    <img src={proj.hero_img || proj.heroImg} alt={proj.title} />
+                  </div>
+                  <div className="project-card-meta">
+                    <span className="project-card-cat">{proj.type}</span>
+                  </div>
+                  <h3 className="project-card-title">{proj.title}</h3>
+                  <span className="project-card-link">View Case Study →</span>
+                </Link>
+              ))}
             </div>
           </div>
 
-          {/* OFFICE TAB */}
-          <div className={`ethos-main variant-office ${activeTab === 'office' ? 'active' : ''}`} style={{ opacity: activeTab === 'office' ? 1 : 0 }}>
-            <div className="ethos-tab-header">
-              <div className="ethos-text-side">
-                <p className="ethos-category">01 / Corporate Office</p>
-                <h2 className="ethos-alt-title">INTI WORKSPACE</h2>
-                <p className="ethos-alt-subtitle">Precision, Acoustics, and Spatial Flow</p>
+          {/* DYNAMIC CATEGORY TABS */}
+          {CATEGORIES.map(cat => {
+            const filtered = projects.filter(p => p.category && (p.category.toLowerCase() === cat.id || p.category.toLowerCase() === cat.name.toLowerCase()));
+            return (
+              <div key={cat.id} className={`ethos-main variant-${cat.id} ${activeTab === cat.id ? 'active' : ''}`} style={{ opacity: activeTab === cat.id ? 1 : 0 }}>
+                <div className="ethos-tab-header">
+                  <div className="ethos-text-side">
+                    <p className="ethos-category">{cat.label}</p>
+                    <h2 className="ethos-alt-title">INTI {cat.title}</h2>
+                    <p className="ethos-alt-subtitle">{cat.subtitle}</p>
+                  </div>
+                </div>
+                <div className="ethos-cards-grid">
+                  {filtered.map((proj) => (
+                    <Link key={proj.slug} to={`/project?id=${proj.slug}`} className="project-card">
+                      <div className="project-card-img-wrap">
+                        <img src={proj.hero_img || proj.heroImg} alt={proj.title} />
+                      </div>
+                      <div className="project-card-meta">
+                        <span className="project-card-cat">{proj.type}</span>
+                      </div>
+                      <h3 className="project-card-title">{proj.title}</h3>
+                      <span className="project-card-link">View Case Study →</span>
+                    </Link>
+                  ))}
+                  {filtered.length === 0 && (
+                    <div style={{ gridColumn: 'span 3', padding: '60px', border: '1px dashed rgba(255,255,255,0.05)', borderRadius: '4px', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
+                      No projects currently available under this category.
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="ethos-cards-grid">
-              <Link to="/project?id=hul-hosur-conf" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-1/img-4.jpg" alt="HUL Hosur - Conference Room" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Boardroom Case Study</span>
-                </div>
-                <h3 className="project-card-title">HUL Hosur - Conference Room</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-              <Link to="/project?id=hul-hosur-fm" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-2/img-1.jpg" alt="HUL Hosur - FM Office Room" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Executive Office Case Study</span>
-                </div>
-                <h3 className="project-card-title">HUL Hosur - FM Office Room</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-              <Link to="/project?id=ge-hosur-conf-2" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-6/img-1.jpg" alt="GE Hosur - Executive Boardroom" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Boardroom Case Study</span>
-                </div>
-                <h3 className="project-card-title">GE Hosur - Executive Boardroom</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-              <Link to="/project?id=rb-hosur-conf" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-3/img-1.jpg" alt="RB Hosur - Executive Conference Room" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Conference Case Study</span>
-                </div>
-                <h3 className="project-card-title">RB Hosur - Executive Conference Room</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* WELLNESS TAB */}
-          <div className={`ethos-main variant-wellness ${activeTab === 'wellness' ? 'active' : ''}`} style={{ opacity: activeTab === 'wellness' ? 1 : 0 }}>
-            <div className="ethos-tab-header">
-              <div className="ethos-text-side">
-                <p className="ethos-category">02 / Healthcare & Wellness</p>
-                <h2 className="ethos-alt-title">INTI WELLNESS</h2>
-                <p className="ethos-alt-subtitle">Hygienic Precision, Light, and Cleanliness</p>
-              </div>
-            </div>
-            <div className="ethos-cards-grid">
-              <Link to="/project?id=hlrc-bangalore" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-5/img-1.jpg" alt="HLRC Bangalore - Research Lab" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Research Case Study</span>
-                </div>
-                <h3 className="project-card-title">HLRC Bangalore - Research Lab</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-              <Link to="/project?id=rb-hosur-hygiene" className="project-card">
-                <div className="project-card-img-wrap">
-                  <img src="/assets/photo/project-4/img-1.jpg" alt="RB Hosur - Hygiene Station Entrance" />
-                </div>
-                <div className="project-card-meta">
-                  <span className="project-card-cat">Entrance Case Study</span>
-                </div>
-                <h3 className="project-card-title">RB Hosur - Hygiene Station Entrance</h3>
-                <span className="project-card-link">View Case Study →</span>
-              </Link>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </section>
 
@@ -861,15 +905,15 @@ function Home() {
             </button>
           </div>
           <div className="showcase-clients">
-            <p class="clients-eyebrow">Corporate Partners</p>
-            <h3 class="clients-title">Privileged Clients</h3>
-            <div class="clients-list">
-              <div class="client-name">Unilever / HUL</div>
-              <div class="client-name">General Electricals (GE)</div>
-              <div class="client-name">Kanthal</div>
-              <div class="client-name">I Value</div>
-              <div class="client-name">Reckitt and Benckiser (RB)</div>
-              <div class="client-name">Pernod Ricard</div>
+            <p className="clients-eyebrow">Corporate Partners</p>
+            <h3 className="clients-title">Privileged Clients</h3>
+            <div className="clients-list">
+              <div className="client-name">Unilever / HUL</div>
+              <div className="client-name">General Electricals (GE)</div>
+              <div className="client-name">Kanthal</div>
+              <div className="client-name">I Value</div>
+              <div className="client-name">Reckitt and Benckiser (RB)</div>
+              <div className="client-name">Pernod Ricard</div>
             </div>
           </div>
         </div>
@@ -882,7 +926,7 @@ function Home() {
           <div className="footer-grid">
             <div className="footer-brand-col">
               <div className="footer-logo">
-                <img src="/assets/logo.png" alt="INTI Logo" class="footer-logo-img" />
+                <img src="/assets/logo.png" alt="INTI Logo" className="footer-logo-img" />
               </div>
               <p className="footer-tagline">INTI Works — Spaces shaped with calm, precision, and timeless warmth.</p>
               <p className="footer-founder" style={{ fontFamily: 'var(--font-accent)', fontSize: '11px', color: 'var(--color-gold)', marginTop: '16px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Vijaya H. Reddy &mdash; Founder &amp; Principal Designer</p>
@@ -918,18 +962,14 @@ function Home() {
               <p className="footer-ops">Operating under Sri Vari Ventures and Sri Hari Enterprises.</p>
             </div>
             <div className="footer-bottom-links">
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms</a>
+              <a href="#/privacy" onClick={(e) => { e.preventDefault(); setPrivacyOpen(true); }}>Privacy Policy</a>
+              <a href="#/terms" onClick={(e) => { e.preventDefault(); setTermsOpen(true); }}>Terms</a>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* FLOATING CTA */}
-      <button className={`floating-cta open-reserve-modal ${floatingCtaVisible ? 'visible' : ''}`} id="floating-cta" onClick={() => setReserveOpen(true)} aria-label="Book a consultation">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
-        <span>Start Your Project</span>
-      </button>
+
 
       {/* STYLE QUIZ MODAL */}
       <div className={`modal-overlay ${quizOpen ? 'active' : ''}`} id="quiz-modal" aria-hidden={!quizOpen} role="dialog">
@@ -1046,14 +1086,14 @@ function Home() {
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4L16 16M16 4L4 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
           </button>
           <div className="modal-left">
-            <img class="modal-watch-img" src="/assets/photo/z1.jpg" alt="INTI interior" />
+            <img className="modal-watch-img" src="/assets/photo/z1.jpg" alt="INTI interior" />
             <div className="modal-left-overlay"></div>
             <div className="modal-left-text">
               <span className="modal-left-label">Private Studio</span>
               <p className="modal-left-quote">"Every great space begins with a conversation."</p>
             </div>
           </div>
-          <div className="modal-right">
+          <div className="modal-right" data-lenis-prevent>
             <p className="modal-eyebrow">Private Consultation</p>
             <h2 className="modal-title" id="modal-title">Secure Your <em>Consultation</em></h2>
             <p className="modal-subtitle">Share your vision with us. Our team will reach out within 24 hours.</p>
@@ -1090,11 +1130,90 @@ function Home() {
                 <label htmlFor="message">Tell Us About Your Vision</label>
                 <textarea id="message" name="message" placeholder="Describe your space, aspirations, and timeline..." rows="4"></textarea>
               </div>
-              <button type="submit" class="form-submit-btn">Request Consultation</button>
+              <button type="submit" className="form-submit-btn">Request Consultation</button>
             </form>
           </div>
         </div>
       </div>
+
+      {/* PRIVACY POLICY MODAL OVERLAY */}
+      <div className={`legal-modal-overlay ${privacyOpen ? 'active' : ''}`} onClick={() => setPrivacyOpen(false)}>
+        <div className="legal-modal-content" onClick={(e) => e.stopPropagation()} data-lenis-prevent>
+          <button className="legal-modal-close" onClick={() => setPrivacyOpen(false)}>✕</button>
+          <h2 className="legal-modal-title">Privacy Policy</h2>
+          <div className="legal-modal-body">
+            <p>Last updated: June 30, 2026</p>
+            <p>At INTI, we respect your privacy and are committed to protecting the personal information you share with us. This Privacy Policy details how we collect, use, and safeguard your data.</p>
+            
+            <h3>1. Information We Collect</h3>
+            <p>We only collect personal information that you voluntarily provide to us when using our booking or consultation forms, including your name, email address, telephone number, and details regarding your design project vision.</p>
+            
+            <h3>2. How We Use Your Information</h3>
+            <p>Your details are used solely to schedule interior design consultations, reply to direct inquiries, evaluate project scopes, and coordinate client workflows. We do not sell or lease client details to third-party marketing services.</p>
+            
+            <h3>3. Data Retention & Safety</h3>
+            <p>We protect client contact requests using secure relational tables hosted on Supabase databases with encrypted SSL pipelines. Booking data is retained for administrative coordination and client follow-ups.</p>
+            
+            <h3>4. Contact Us</h3>
+            <p>For questions or requests regarding your data records, please reach out to us at studio@intiworks.com.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* TERMS & CONDITIONS MODAL OVERLAY */}
+      <div className={`legal-modal-overlay ${termsOpen ? 'active' : ''}`} onClick={() => setTermsOpen(false)}>
+        <div className="legal-modal-content" onClick={(e) => e.stopPropagation()} data-lenis-prevent>
+          <button className="legal-modal-close" onClick={() => setTermsOpen(false)}>✕</button>
+          <h2 className="legal-modal-title">Terms & Conditions</h2>
+          <div className="legal-modal-body">
+            <p>Last updated: June 30, 2026</p>
+            <p>Welcome to INTI. By accessing this website or utilizing our consultation services, you agree to comply with and be bound by the following terms of service.</p>
+            
+            <h3>1. Studio Services</h3>
+            <p>INTI provides professional luxury interior architecture and custom space planning consultancy. All initial booking queries submitted via this website are subject to availability and scheduling confirmations by our studio representatives.</p>
+            
+            <h3>2. Intellectual Property</h3>
+            <p>The layout designs, blueprints, visual graphics, case studies, photographs, and logos displayed on this website represent the exclusive intellectual property of INTI. Unauthorized duplication or distribution is strictly prohibited.</p>
+            
+            <h3>3. Limitation of Liability</h3>
+            <p>INTI makes every effort to showcase precise material specifications and project details. However, we are not liable for differences in final material color variations, structural revisions made on-site, or temporary scheduling adjustments.</p>
+            
+            <h3>4. Governing Law</h3>
+            <p>These terms are governed by the laws of India, under the legal operating entities of Sri Vari Ventures and Sri Hari Enterprises.</p>
+          </div>
+        </div>
+      </div>
+      {/* Toast Notification */}
+      {toast.message && (
+        <div style={{
+          position: 'fixed',
+          top: '30px',
+          right: '30px',
+          zIndex: 99999,
+          background: '#161616',
+          border: toast.type === 'error' ? '1px solid rgba(235,87,87,0.3)' : '1px solid var(--color-gold)',
+          borderRadius: '4px',
+          padding: '16px 24px',
+          color: '#fff',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontFamily: 'var(--font-accent)',
+          fontSize: '13px',
+          letterSpacing: '0.05em',
+          animation: 'toastFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+        }}>
+          <span style={{ color: toast.type === 'error' ? '#eb5757' : 'var(--color-gold)', fontWeight: 'bold' }}>◈</span>
+          <span>{toast.message}</span>
+          <button 
+            onClick={() => setToast({ message: '', type: 'success' })}
+            style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', paddingLeft: '12px' }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </>
   );
 }

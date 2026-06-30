@@ -4,6 +4,7 @@ import Lenis from 'lenis';
 import gsap from 'gsap';
 import Home from './pages/Home.jsx';
 import ProjectDetail from './pages/ProjectDetail.jsx';
+import Admin from './pages/Admin.jsx';
 
 // Scroll to top on route change synchronously during layout phase
 function ScrollToTop() {
@@ -71,32 +72,58 @@ function App() {
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('mouseout', handleMouseOut);
 
-    // 3. Global Lenis Smooth Scroll
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
-      infinite: false,
-    });
+    // 3. Global Lenis Smooth Scroll (Destroyed on /admin, Created elsewhere)
+    let lenis = null;
+    let lenisRafId = null;
 
-    let lenisRafId;
-    function raf(time) {
-      lenis.raf(time);
+    const initLenis = () => {
+      if (lenis) return;
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        syncTouch: false,
+        infinite: false,
+      });
+
+      function raf(time) {
+        if (lenis) {
+          lenis.raf(time);
+          lenisRafId = requestAnimationFrame(raf);
+        }
+      }
       lenisRafId = requestAnimationFrame(raf);
-    }
-    lenisRafId = requestAnimationFrame(raf);
+    };
+
+    const destroyLenis = () => {
+      if (lenisRafId) cancelAnimationFrame(lenisRafId);
+      if (lenis) {
+        lenis.destroy();
+        lenis = null;
+      }
+    };
+
+    const handleRouteScroll = () => {
+      const isSearchAdmin = window.location.hash.includes('/admin') || window.location.pathname.includes('/admin');
+      if (isSearchAdmin) {
+        destroyLenis();
+      } else {
+        initLenis();
+      }
+    };
+
+    window.addEventListener('hashchange', handleRouteScroll);
+    handleRouteScroll(); // Initial check
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mouseout', handleMouseOut);
+      window.removeEventListener('hashchange', handleRouteScroll);
       cancelAnimationFrame(frameId);
-      cancelAnimationFrame(lenisRafId);
-      lenis.destroy();
+      destroyLenis();
     };
   }, []);
 
@@ -113,6 +140,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/project" element={<ProjectDetail />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </Router>
   );
