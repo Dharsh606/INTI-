@@ -132,11 +132,6 @@ function Home() {
   const [answers, setAnswers] = useState({});
   const [quizResult, setQuizResult] = useState(null);
 
-  // Moodboard States
-  const [mbPalette, setMbPalette] = useState('warm');
-  const [mbMaterial, setMbMaterial] = useState('marble');
-  const [mbRoom, setMbRoom] = useState('living');
-
   // Legal Modal States
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -145,26 +140,6 @@ function Home() {
   const video1Ref = useRef(null);
   const video2Ref = useRef(null);
   const canvasRef = useRef(null);
-
-  // ----------------------------------------------------
-  // Moodboard Result Logic
-  // ----------------------------------------------------
-  const moodboardDescriptions = {
-    'warm-marble-living': { desc: 'A sun-drenched living space anchored by veined marble and burnished brass — radiating warmth without a word.', img: 0 },
-    'warm-wood-living': { desc: 'Warm timber tones and wide-plank floors define a living space that feels grounded, tactile, and alive.', img: 1 },
-    'cool-marble-bedroom': { desc: 'Cool marble surfaces meet linen drapes in a bedroom designed for deep, effortless rest.', img: 2 },
-    'neutral-linen-dining': { desc: 'A neutral palette of linen, stone, and oak — a dining room where every meal becomes an occasion.', img: 0 },
-  };
-
-  const getMoodboardResult = () => {
-    const key = `${mbPalette}-${mbMaterial}-${mbRoom}`;
-    return moodboardDescriptions[key] || {
-      desc: `A ${mbPalette} ${mbRoom} defined by ${mbMaterial} — crafted with restraint and lived-in warmth.`,
-      img: 1
-    };
-  };
-
-  const mbResult = getMoodboardResult();
 
   // ----------------------------------------------------
   // Style Quiz Logic
@@ -616,7 +591,6 @@ function Home() {
             <a href="#heritage" onClick={(e) => handleNavClick(e, 'heritage')}>Heritage</a>
             <a href="#collection" onClick={(e) => handleNavClick(e, 'collection')}>Collection</a>
             <a href="#craftsmanship" onClick={(e) => handleNavClick(e, 'craftsmanship')}>Craftsmanship</a>
-            <a href="#moodboard" onClick={(e) => handleNavClick(e, 'moodboard')}>Moodboard</a>
           </div>
           <button className="nav-cta open-reserve-modal" onClick={() => setReserveOpen(true)}>Book a Consultation</button>
         </div>
@@ -808,81 +782,7 @@ function Home() {
         </div>
       </section>
 
-      {/* MOODBOARD BUILDER */}
-      <section className="moodboard-section" id="moodboard">
-        <div className="mb-header">
-          <p className="mb-eyebrow">Build Your Vision</p>
-          <h2 className="mb-title">Your Space,<br /><em>Your Palette</em></h2>
-          <p className="mb-subtitle">Select your preferences and we'll curate an INTI moodboard for you.</p>
-        </div>
-        <div className="mb-builder">
-          <div className="mb-step" data-step="palette">
-            <p className="mb-step-label">01 — Palette</p>
-            <div className="mb-options">
-              <button className={`mb-opt ${mbPalette === 'warm' ? 'active' : ''}`} onClick={() => setMbPalette('warm')}>
-                <span className="mb-swatch" style={{ background: 'linear-gradient(135deg, #d4af7a, #c4956a, #8b6347)' }}></span>
-                <span>Warm</span>
-              </button>
-              <button className={`mb-opt ${mbPalette === 'cool' ? 'active' : ''}`} onClick={() => setMbPalette('cool')}>
-                <span className="mb-swatch" style={{ background: 'linear-gradient(135deg, #5bb3e4, #7ec8e3, #b8d8e8)' }}></span>
-                <span>Cool</span>
-              </button>
-              <button className={`mb-opt ${mbPalette === 'neutral' ? 'active' : ''}`} onClick={() => setMbPalette('neutral')}>
-                <span className="mb-swatch" style={{ background: 'linear-gradient(135deg, #c8c0b0, #e8e0d0, #f0ece4)' }}></span>
-                <span>Neutral</span>
-              </button>
-            </div>
-          </div>
-          <div className="mb-step" data-step="material">
-            <p className="mb-step-label">02 — Material</p>
-            <div className="mb-options">
-              <button className={`mb-opt ${mbMaterial === 'marble' ? 'active' : ''}`} onClick={() => setMbMaterial('marble')}>
-                <span className="mb-icon">◈</span>
-                <span>Marble</span>
-              </button>
-              <button className={`mb-opt ${mbMaterial === 'wood' ? 'active' : ''}`} onClick={() => setMbMaterial('wood')}>
-                <span className="mb-icon">⬡</span>
-                <span>Wood</span>
-              </button>
-              <button className={`mb-opt ${mbMaterial === 'linen' ? 'active' : ''}`} onClick={() => setMbMaterial('linen')}>
-                <span className="mb-icon">◻</span>
-                <span>Linen</span>
-              </button>
-            </div>
-          </div>
-          <div className="mb-step" data-step="room">
-            <p className="mb-step-label">03 — Room</p>
-            <div className="mb-options">
-              <button className={`mb-opt ${mbRoom === 'living' ? 'active' : ''}`} onClick={() => setMbRoom('living')}>
-                <span className="mb-icon">⌂</span>
-                <span>Living</span>
-              </button>
-              <button className={`mb-opt ${mbRoom === 'bedroom' ? 'active' : ''}`} onClick={() => setMbRoom('bedroom')}>
-                <span className="mb-icon">◡</span>
-                <span>Bedroom</span>
-              </button>
-              <button className={`mb-opt ${mbRoom === 'dining' ? 'active' : ''}`} onClick={() => setMbRoom('dining')}>
-                <span className="mb-icon">◎</span>
-                <span>Dining</span>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="mb-result" id="mb-result">
-          <div className="mb-result-images">
-            <img className={`mb-img mb-img-1 ${mbResult.img === 0 ? 'active' : ''}`} src="/assets/photo/bg1.jpg" alt="Moodboard result" />
-            <img className={`mb-img mb-img-2 ${mbResult.img === 1 ? 'active' : ''}`} src="/assets/photo/z1.jpg" alt="Moodboard result" />
-            <img className={`mb-img mb-img-3 ${mbResult.img === 2 ? 'active' : ''}`} src="/assets/photo/q1.jpg" alt="Moodboard result" />
-          </div>
-          <div className="mb-result-text">
-            <p className="mb-result-label" id="mb-result-label">
-              {mbPalette.charAt(0).toUpperCase() + mbPalette.slice(1)} · {mbMaterial.charAt(0).toUpperCase() + mbMaterial.slice(1)} · {mbRoom.charAt(0).toUpperCase() + mbRoom.slice(1)}
-            </p>
-            <p className="mb-result-desc" id="mb-result-desc">{mbResult.desc}</p>
-            <button className="mb-cta open-reserve-modal" onClick={() => setReserveOpen(true)}>Get This Look →</button>
-          </div>
-        </div>
-      </section>
+
 
       {/* SHOWCASE */}
       <section className="showcase" id="showcase">
