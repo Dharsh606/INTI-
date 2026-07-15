@@ -862,8 +862,8 @@ function Home() {
               <p className="footer-ops">Operating under Sri Vari Ventures and Sri Hari Enterprises.</p>
             </div>
             <div className="footer-bottom-links">
-              <a href="#/privacy" onClick={(e) => { e.preventDefault(); setPrivacyOpen(true); }}>Privacy Policy</a>
-              <a href="#/terms" onClick={(e) => { e.preventDefault(); setTermsOpen(true); }}>Terms</a>
+              <Link to="/privacy">Privacy Policy</Link>
+              <Link to="/terms">Terms</Link>
             </div>
           </div>
         </div>

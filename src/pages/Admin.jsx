@@ -112,6 +112,12 @@ function Admin() {
   // Authentication Listeners (Strict Session Policies)
   // ----------------------------------------------------
   useEffect(() => {
+    // Prevent search indexing of the admin panel
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex, nofollow';
+    document.head.appendChild(meta);
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
@@ -120,7 +126,10 @@ function Admin() {
       setSession(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      document.head.removeChild(meta);
+    };
   }, []);
 
   // ----------------------------------------------------

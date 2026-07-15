@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin
+Disallow: /bookings
+Allow: /
+
+Sitemap: https://inti.design/sitemap.xml

@@ -5,6 +5,10 @@ import gsap from 'gsap';
 import Home from './pages/Home.jsx';
 import ProjectDetail from './pages/ProjectDetail.jsx';
 import Admin from './pages/Admin.jsx';
+import Privacy from './pages/Privacy.jsx';
+import Terms from './pages/Terms.jsx';
+import NotFound from './pages/NotFound.jsx';
+import Maintenance from './pages/Maintenance.jsx';
 
 // Scroll to top on route change synchronously during layout phase
 function ScrollToTop() {
@@ -141,6 +145,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/project" element={<ProjectDetail />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/maintenance" element={<Maintenance />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
