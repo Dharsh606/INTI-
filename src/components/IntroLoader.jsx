@@ -54,7 +54,7 @@ function IntroLoader({ onComplete }) {
     // Letter spacing expansion
     timeline.to(
       letterRefs.current,
-      { letterSpacing: '0.6em', duration: 2.2, ease: 'power2.out' },
+      { marginLeft: '0.6em', marginRight: '0.6em', duration: 2.2, ease: 'power2.out' },
       0.8
     );
 
@@ -122,37 +122,52 @@ function IntroLoader({ onComplete }) {
       <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px' }}>
         
         {/* Central Monogram */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           {['I', 'N', 'T', 'Î'].map((char, index) => (
-            <span
+            <div
               key={index}
               ref={(el) => (letterRefs.current[index] = el)}
               style={{
-                fontFamily: 'var(--font-serif)',
-                fontSize: '48px',
-                fontWeight: '300',
-                color: 'var(--color-gold)',
-                textShadow: '0 0 20px rgba(212,175,122,0.3)',
-                display: 'inline-block',
-                margin: '0 0.1em',
-                position: 'relative'
+                display: 'inline-flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                margin: '0 0.15em',
+                width: '56px',
+                height: '70px'
               }}
             >
-              {char === 'Î' ? (
-                <>
-                  I
-                  <span style={{
+              <span
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: '56px',
+                  fontWeight: '300',
+                  color: 'var(--color-gold)',
+                  textShadow: '0 0 20px rgba(212,175,122,0.3)',
+                  lineHeight: '1'
+                }}
+              >
+                {char === 'Î' ? 'I' : char}
+              </span>
+              {char === 'Î' && (
+                <svg
+                  width="18"
+                  height="16"
+                  viewBox="0 0 20 18"
+                  style={{
                     position: 'absolute',
-                    top: '-6px',
+                    top: '-12px', // Sitting beautifully above the scaled I serif cap
                     left: '50%',
-                    transform: 'translateX(-50%) scaleX(1.3)',
-                    fontSize: '10px',
-                    color: 'var(--color-gold)',
-                    textShadow: 'none'
-                  }}>▲</span>
-                </>
-              ) : char}
-            </span>
+                    transform: 'translateX(-50%)',
+                    fill: 'var(--color-gold)',
+                    filter: 'drop-shadow(0 0 8px rgba(212,175,122,0.6))'
+                  }}
+                >
+                  <polygon points="10,0 20,18 0,18" />
+                </svg>
+              )}
+            </div>
           ))}
         </div>
 
