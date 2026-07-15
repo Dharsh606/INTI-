@@ -12,7 +12,7 @@ import Maintenance from './pages/Maintenance.jsx';
 
 // Toggle this variable to true to place the entire public site under maintenance.
 // Keep it as false for normal operation. The /admin panel remains active either way.
-const UNDER_MAINTENANCE = true;
+const UNDER_MAINTENANCE = false;
 
 // Scroll to top on route change synchronously during layout phase
 function ScrollToTop() {
