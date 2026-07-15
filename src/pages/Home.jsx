@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { fetchHomepageContent, fetchHeritageStats, fetchAllProjects, submitConsultation } from '../lib/supabase';
+import IntroLoader from '../components/IntroLoader.jsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -131,6 +132,12 @@ function Home() {
   const [quizStep, setQuizStep] = useState(1);
   const [answers, setAnswers] = useState({});
   const [quizResult, setQuizResult] = useState(null);
+
+  // Intro Loader & Form Submission States
+  const [showLoader, setShowLoader] = useState(() => {
+    return !sessionStorage.getItem('inti-loaded');
+  });
+  const [submittingForm, setSubmittingForm] = useState(false);
 
   // Legal Modal States
   const [privacyOpen, setPrivacyOpen] = useState(false);
@@ -542,8 +549,7 @@ function Home() {
     e.preventDefault();
     const btn = document.querySelector('.form-submit-btn');
     if (!btn) return;
-    btn.textContent = 'Sending…';
-    btn.disabled = true;
+    setSubmittingForm(true);
 
     const formData = {
       firstName: e.target['first-name'].value,
@@ -555,7 +561,10 @@ function Home() {
     };
 
     try {
+      // 2.5s Loading Animation Delay
+      await new Promise(resolve => setTimeout(resolve, 2500));
       await submitConsultation(formData);
+      setSubmittingForm(false);
       showToast("Your consultation request has been submitted successfully!");
       btn.textContent = 'Request Sent ✓';
       btn.style.background = 'rgba(212,175,122,0.3)';
@@ -570,6 +579,7 @@ function Home() {
         e.target.reset();
       }, 2000);
     } catch (err) {
+      setSubmittingForm(false);
       showToast("Submission failed: " + err.message, 'error');
       btn.textContent = 'Request Consultation';
       btn.disabled = false;
@@ -1052,7 +1062,7 @@ function Home() {
             <p>Your details are used solely to schedule interior design consultations, reply to direct inquiries, evaluate project scopes, and coordinate client workflows. We do not sell or lease client details to third-party marketing services.</p>
             
             <h3>3. Data Retention & Safety</h3>
-            <p>We protect client contact requests using secure relational tables hosted on Supabase databases with encrypted SSL pipelines. Booking data is retained for administrative coordination and client follow-ups.</p>
+            <p>We protect client contact requests using secure relational tables hosted on our secure studio cloud servers with encrypted SSL pipelines. Booking data is retained for administrative coordination and client follow-ups.</p>
             
             <h3>4. Contact Us</h3>
             <p>For questions or requests regarding your data records, please reach out to us at studio@intiworks.com.</p>
@@ -1112,6 +1122,53 @@ function Home() {
           >
             ✕
           </button>
+        </div>
+      )}
+
+      {/* INTRO LOAD SEQUENCE */}
+      {showLoader && (
+        <IntroLoader onComplete={() => {
+          sessionStorage.setItem('inti-loaded', 'true');
+          setShowLoader(false);
+        }} />
+      )}
+
+      {/* FORM TRANSMISSION ANIMATION */}
+      {submittingForm && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(10,10,10,0.95)',
+          backdropFilter: 'blur(10px)',
+          zIndex: 10000,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '24px'
+        }}>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+          <div className="saving-spinner" style={{
+            width: '40px',
+            height: '40px',
+            border: '2px solid rgba(212,175,122,0.1)',
+            borderTop: '2px solid var(--color-gold)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <div style={{ textAlign: 'center', padding: '0 24px' }}>
+            <p style={{ margin: 0, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-gold)', fontFamily: 'var(--font-accent)', marginBottom: '6px' }}>
+              Transmitting Vision
+            </p>
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.5)', fontWeight: '300' }}>
+              Connecting with INTI design database...
+            </p>
+          </div>
         </div>
       )}
     </>

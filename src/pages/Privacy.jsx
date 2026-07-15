@@ -119,7 +119,7 @@ function Privacy() {
               4. Data Protection & Isolation
             </h3>
             <p>
-              All submissions are stored securely in encrypted databases hosted via Supabase. We do not Sell, Rent, or distribute your private contact info to any third-party marketing services. Access to your contact logs is restricted to authorized INTI studio administrators only.
+              All submissions are stored securely in encrypted databases hosted on our secure studio cloud servers. We do not Sell, Rent, or distribute your private contact info to any third-party marketing services. Access to your contact logs is restricted to authorized INTI studio administrators only.
             </p>
           </section>
 

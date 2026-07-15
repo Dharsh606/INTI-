@@ -215,3 +215,31 @@ export const uploadImage = async (file) => {
 
   return publicUrlData.publicUrl;
 };
+
+// Fetch maintenance mode flag from homepage_content singleton
+export const fetchMaintenanceStatus = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('homepage_content')
+      .select('is_maintenance')
+      .eq('id', 1)
+      .single();
+    if (error) {
+      console.warn("Error fetching maintenance status from Supabase: ", error.message);
+      return false;
+    }
+    return data?.is_maintenance || false;
+  } catch (err) {
+    return false;
+  }
+};
+
+// Update maintenance mode flag
+export const updateMaintenanceStatus = async (status) => {
+  const { data, error } = await supabase
+    .from('homepage_content')
+    .update({ is_maintenance: status })
+    .eq('id', 1);
+  if (error) throw error;
+  return data;
+};

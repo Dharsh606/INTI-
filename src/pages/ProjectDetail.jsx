@@ -185,6 +185,7 @@ function ProjectDetail() {
   // Dynamic project details state
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [submittingForm, setSubmittingForm] = useState(false);
 
   useEffect(() => {
     const loadProject = async () => {
@@ -281,8 +282,7 @@ function ProjectDetail() {
     e.preventDefault();
     const btn = document.querySelector('.form-submit-btn');
     if (!btn) return;
-    btn.textContent = 'Sending…';
-    btn.disabled = true;
+    setSubmittingForm(true);
 
     const formData = {
       firstName: e.target['first-name'].value,
@@ -294,7 +294,10 @@ function ProjectDetail() {
     };
 
     try {
+      // 2.5s Loading Animation Delay
+      await new Promise(resolve => setTimeout(resolve, 2500));
       await submitConsultation(formData);
+      setSubmittingForm(false);
       showToast("Your consultation request has been submitted successfully!");
       btn.textContent = 'Request Sent ✓';
       btn.style.background = 'rgba(212,175,122,0.3)';
@@ -308,6 +311,7 @@ function ProjectDetail() {
         e.target.reset();
       }, 2000);
     } catch (err) {
+      setSubmittingForm(false);
       showToast("Submission failed: " + err.message, 'error');
       btn.textContent = 'Request Consultation';
       btn.disabled = false;
@@ -513,6 +517,45 @@ function ProjectDetail() {
           >
             ✕
           </button>
+        </div>
+      )}
+
+      {/* FORM TRANSMISSION ANIMATION */}
+      {submittingForm && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(10,10,10,0.95)',
+          backdropFilter: 'blur(10px)',
+          zIndex: 10000,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '24px'
+        }}>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+          <div className="saving-spinner" style={{
+            width: '40px',
+            height: '40px',
+            border: '2px solid rgba(212,175,122,0.1)',
+            borderTop: '2px solid var(--color-gold)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <div style={{ textAlign: 'center', padding: '0 24px' }}>
+            <p style={{ margin: 0, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-gold)', fontFamily: 'var(--font-accent)', marginBottom: '6px' }}>
+              Transmitting Vision
+            </p>
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.5)', fontWeight: '300' }}>
+              Connecting with INTI design database...
+            </p>
+          </div>
         </div>
       )}
     </>

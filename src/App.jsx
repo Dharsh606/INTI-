@@ -9,10 +9,8 @@ import Privacy from './pages/Privacy.jsx';
 import Terms from './pages/Terms.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Maintenance from './pages/Maintenance.jsx';
-
-
-// Keep it as false for normal operation. The /admin panel remains active either way.
-const UNDER_MAINTENANCE = false;
+import { fetchMaintenanceStatus } from './lib/supabase';
+import { useState } from 'react';
 
 // Scroll to top on route change synchronously during layout phase
 function ScrollToTop() {
@@ -24,6 +22,18 @@ function ScrollToTop() {
 }
 
 function App() {
+  const [isMaintenance, setIsMaintenance] = useState(false);
+  const [checkingMaintenance, setCheckingMaintenance] = useState(true);
+
+  useEffect(() => {
+    const checkMaintenance = async () => {
+      const status = await fetchMaintenanceStatus();
+      setIsMaintenance(status);
+      setCheckingMaintenance(false);
+    };
+    checkMaintenance();
+  }, []);
+
   useEffect(() => {
     // 1. Custom Cursor Elements
     const cursor = document.getElementById('custom-cursor');
@@ -133,7 +143,13 @@ function App() {
       cancelAnimationFrame(frameId);
       destroyLenis();
     };
-  }, []);
+  }, [checkingMaintenance]);
+
+  const isCheckingAdmin = window.location.pathname.includes('/admin') || window.location.hash.includes('/admin');
+
+  if (checkingMaintenance && !isCheckingAdmin) {
+    return <div style={{ minHeight: '100vh', backgroundColor: '#0a0a0a' }} />;
+  }
 
   return (
     <Router>
@@ -146,13 +162,13 @@ function App() {
       </div>
       <div className="cursor-glow" aria-hidden="true"></div>
       <Routes>
-        <Route path="/" element={UNDER_MAINTENANCE ? <Maintenance /> : <Home />} />
-        <Route path="/project" element={UNDER_MAINTENANCE ? <Maintenance /> : <ProjectDetail />} />
+        <Route path="/" element={isMaintenance ? <Maintenance /> : <Home />} />
+        <Route path="/project" element={isMaintenance ? <Maintenance /> : <ProjectDetail />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/privacy" element={UNDER_MAINTENANCE ? <Maintenance /> : <Privacy />} />
-        <Route path="/terms" element={UNDER_MAINTENANCE ? <Maintenance /> : <Terms />} />
+        <Route path="/privacy" element={isMaintenance ? <Maintenance /> : <Privacy />} />
+        <Route path="/terms" element={isMaintenance ? <Maintenance /> : <Terms />} />
         <Route path="/maintenance" element={<Maintenance />} />
-        <Route path="*" element={UNDER_MAINTENANCE ? <Maintenance /> : <NotFound />} />
+        <Route path="*" element={isMaintenance ? <Maintenance /> : <NotFound />} />
       </Routes>
     </Router>
   );

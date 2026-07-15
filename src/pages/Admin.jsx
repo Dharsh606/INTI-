@@ -12,7 +12,9 @@ import {
   updateProject,
   deleteProject,
   deleteConsultation,
-  uploadImage
+  uploadImage,
+  fetchMaintenanceStatus,
+  updateMaintenanceStatus
 } from '../lib/supabase';
 
 function Admin() {
@@ -108,6 +110,12 @@ function Admin() {
   // Track file upload loadings
   const [uploadingImage, setUploadingImage] = useState(null); // 'signature', 'watch', 'heritage', 'hero', 'gallery_0', etc.
 
+  // Dynamic saving & portal loader states
+  const [savingState, setSavingState] = useState(false);
+  const [savingText, setSavingText] = useState('');
+  const [portalLoading, setPortalLoading] = useState(true);
+  const [maintenanceActive, setMaintenanceActive] = useState(false);
+
   // ----------------------------------------------------
   // Authentication Listeners (Strict Session Policies)
   // ----------------------------------------------------
@@ -170,6 +178,14 @@ function Admin() {
     }
   }, [session]);
 
+  // Portal Entry Loader Timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPortalLoading(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const loadAllData = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
@@ -205,14 +221,22 @@ function Admin() {
             heritage_body_1: stats.heritage_body_1 || '',
             heritage_body_2: stats.heritage_body_2 || '',
             heritage_img: stats.heritage_img || '',
-            founder_name: stats.founder_name || 'Vijaya H. Reddy',
-            founder_role: stats.founder_role || 'Principal Designer',
-            founder_desc: stats.founder_desc || 'Sculpting luxury spaces with architectural integrity since 2007.',
-            founder_img: stats.founder_img || '/assets/photo/ethos-bg-rs.jpg'
+            founder_name: stats.founder_name || '',
+            founder_role: stats.founder_role || '',
+            founder_desc: stats.founder_desc || '',
+            founder_img: stats.founder_img || '',
           });
         }
       } catch (err) {
-        console.warn("Failed to load heritage stats:", err.message);
+        console.warn("Failed to load stats:", err.message);
+      }
+
+      // 3. Maintenance Status
+      try {
+        const status = await fetchMaintenanceStatus();
+        setMaintenanceActive(status);
+      } catch (err) {
+        console.warn("Failed to load maintenance status:", err.message);
       }
 
       // 3. Projects list
@@ -290,7 +314,7 @@ function Admin() {
           setStatsData({ ...statsData, [targetField]: publicUrl });
         }
       }
-      showToast("Image uploaded successfully to Supabase storage!");
+      showToast("Image uploaded successfully!");
     } catch (err) {
       showToast("Image upload failed: " + err.message, "error");
     } finally {
@@ -307,14 +331,7 @@ function Admin() {
     try {
       const publicUrl = await uploadImage(file);
       if (publicUrl) {
-        const updatedCanvas = [...(homeData.architecture_imgs || [
-          '/assets/photo/bg1.jpg',
-          '/assets/photo/q1.jpg',
-          '/assets/photo/watch.jpg',
-          '/assets/photo/z1.jpg',
-          '/assets/photo/ethos-bg.jpg',
-          '/assets/photo/ethos-bg-rs.jpg'
-        ])];
+        const updatedCanvas = [...homeData.architecture_imgs];
         updatedCanvas[index] = publicUrl;
         setHomeData({ ...homeData, architecture_imgs: updatedCanvas });
         showToast(`Canvas Slot ${index + 1} updated successfully!`);
@@ -329,36 +346,58 @@ function Admin() {
   // ----------------------------------------------------
   // Save Handlers
   // ----------------------------------------------------
+  const handleToggleMaintenance = async (e) => {
+    const checked = e.target.checked;
+    setSavingText("Configuring Maintenance Mode...");
+    setSavingState(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await updateMaintenanceStatus(checked);
+      setMaintenanceActive(checked);
+      showToast(checked ? "Maintenance mode is now active!" : "Website is now live and public!", "success");
+    } catch (err) {
+      showToast("Failed to toggle maintenance mode: " + err.message, "error");
+    } finally {
+      setSavingState(false);
+    }
+  };
+
   const saveHomeContent = async (e) => {
     e.preventDefault();
-    setSaving(true);
+    setSavingText("Recomposing landing page atmospheres...");
+    setSavingState(true);
     try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
       await updateHomepageContent(homeData);
       showToast("Homepage content and Canvas successfully saved!");
     } catch (err) {
       showToast("Failed to update homepage content: " + err.message, "error");
     } finally {
-      setSaving(false);
+      setSavingState(false);
     }
   };
 
   const saveStatsContent = async (e) => {
     e.preventDefault();
-    setSaving(true);
+    setSavingText("Updating studio record history...");
+    setSavingState(true);
     try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
       await updateHeritageStats(statsData);
       showToast("Heritage statistics updated successfully!");
     } catch (err) {
       showToast("Failed to update stats: " + err.message, "error");
     } finally {
-      setSaving(false);
+      setSavingState(false);
     }
   };
 
   const saveProjectForm = async (e) => {
     e.preventDefault();
-    setSaving(true);
+    setSavingText("Syncing case study coordinates with studio cloud database...");
+    setSavingState(true);
     try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const cleanGallery = projectForm.gallery_imgs.filter(img => img.trim() !== '');
       if (cleanGallery.length < 5) {
         while (cleanGallery.length < 5) cleanGallery.push('/assets/photo/ethos-bg.jpg');
@@ -377,11 +416,11 @@ function Admin() {
         showToast("Project case study updated successfully!");
       }
       setEditingProject(null);
-      loadAllData();
+      loadAllData(true);
     } catch (err) {
       showToast("Failed to save project: " + err.message, "error");
     } finally {
-      setSaving(false);
+      setSavingState(false);
     }
   };
 
@@ -390,12 +429,17 @@ function Admin() {
       "Delete Case Study",
       "Are you sure you want to delete this case study? This action is permanent and cannot be undone.",
       async () => {
+        setSavingText("Purging case study from database...");
+        setSavingState(true);
         try {
+          await new Promise(resolve => setTimeout(resolve, 1500));
           await deleteProject(projId);
           showToast("Project deleted from database.");
-          loadAllData();
+          loadAllData(true);
         } catch (err) {
-          showToast("Delete failed: " + err.message, "error");
+          showToast("Failed to delete project: " + err.message, "error");
+        } finally {
+          setSavingState(false);
         }
       }
     );
@@ -462,6 +506,65 @@ function Admin() {
   // ----------------------------------------------------
   // Login Render
   // ----------------------------------------------------
+  if (portalLoading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: '#0a0a0a',
+        color: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '24px',
+        fontFamily: 'var(--font-sans)',
+        textAlign: 'center'
+      }}>
+        <style>{`
+          @keyframes compassRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        <div style={{
+          width: '60px',
+          height: '60px',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            border: '1px dashed rgba(212,175,122,0.3)',
+            borderRadius: '50%',
+            animation: 'compassRotate 15s linear infinite'
+          }} />
+          <div style={{
+            position: 'absolute',
+            width: '70%',
+            height: '70%',
+            border: '1px solid var(--color-gold)',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            animation: 'compassRotate 2s linear infinite'
+          }} />
+          <span style={{ color: 'var(--color-gold)', fontSize: '14px' }}>◈</span>
+        </div>
+        <div>
+          <p style={{ margin: 0, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--color-gold)', fontFamily: 'var(--font-accent)', marginBottom: '6px' }}>
+            Authenticating Admin Session
+          </p>
+          <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontWeight: '300' }}>
+            Securing Spatial Node...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!session) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0b0b0b', padding: '24px' }}>
@@ -632,6 +735,72 @@ function Admin() {
                       <span style={{ fontSize: '10px', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Completed Goal</span>
                       <span style={{ fontSize: '36px', fontFamily: 'var(--font-serif)', color: '#fff', fontWeight: '300' }}>{statsData.completed_projects || '50+'}</span>
                     </div>
+                  </div>
+
+                  {/* Maintenance Mode Controller Panel */}
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, #131313 0%, #181818 100%)', 
+                    border: '1px solid rgba(255,255,255,0.03)', 
+                    borderRadius: '4px', 
+                    padding: '24px', 
+                    marginBottom: '40px',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '24px'
+                  }}>
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '24px', color: maintenanceActive ? 'var(--color-gold)' : 'rgba(255,255,255,0.3)', transition: 'all 0.3s' }}>
+                        {maintenanceActive ? '🔒' : '🌐'}
+                      </span>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '14px', color: '#fff', fontWeight: '400', letterSpacing: '0.05em' }}>
+                          Studio Maintenance Mode
+                        </h4>
+                        <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>
+                          {maintenanceActive 
+                            ? 'The public website is locked. Visitors see the maintenance screen. Admin portal is active.' 
+                            : 'The public website is live. Visitors can explore the catalog and submit bookings.'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Toggle Switch */}
+                    <label style={{ 
+                      position: 'relative', 
+                      display: 'inline-block', 
+                      width: '56px', 
+                      height: '28px', 
+                      cursor: 'pointer' 
+                    }}>
+                      <input 
+                        type="checkbox" 
+                        checked={maintenanceActive}
+                        onChange={handleToggleMaintenance}
+                        style={{ opacity: 0, width: 0, height: 0 }} 
+                      />
+                      <span style={{
+                        position: 'absolute',
+                        inset: 0,
+                        backgroundColor: maintenanceActive ? 'var(--color-gold)' : 'rgba(255,255,255,0.1)',
+                        transition: '0.4s',
+                        borderRadius: '34px',
+                        border: '1px solid rgba(255,255,255,0.05)'
+                      }}>
+                        <span style={{
+                          position: 'absolute',
+                          height: '20px',
+                          width: '20px',
+                          left: '4px',
+                          bottom: '3px',
+                          backgroundColor: maintenanceActive ? '#000' : '#fff',
+                          transition: '0.4s',
+                          borderRadius: '50%',
+                          transform: maintenanceActive ? 'translateX(26px)' : 'translateX(0)'
+                        }} />
+                      </span>
+                    </label>
                   </div>
 
                   {/* Split Layout for Recents */}
@@ -1425,6 +1594,44 @@ function Admin() {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* ADMIN TRANSACTION ANIMATION */}
+      {savingState && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(10,10,10,0.95)',
+          backdropFilter: 'blur(10px)',
+          zIndex: 10000,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '24px'
+        }}>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+          <div className="saving-spinner" style={{
+            width: '40px',
+            height: '40px',
+            border: '2px solid rgba(212,175,122,0.1)',
+            borderTop: '2px solid var(--color-gold)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <div style={{ textAlign: 'center', padding: '0 24px' }}>
+            <p style={{ margin: 0, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.15em', color: 'var(--color-gold)', fontFamily: 'var(--font-accent)', marginBottom: '6px' }}>
+              Database Syncing
+            </p>
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.5)', fontWeight: '300' }}>
+              {savingText}
+            </p>
           </div>
         </div>
       )}
