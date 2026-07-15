@@ -10,6 +10,10 @@ import Terms from './pages/Terms.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Maintenance from './pages/Maintenance.jsx';
 
+// Toggle this variable to true to place the entire public site under maintenance.
+// Keep it as false for normal operation. The /admin panel remains active either way.
+const UNDER_MAINTENANCE = true;
+
 // Scroll to top on route change synchronously during layout phase
 function ScrollToTop() {
   const { pathname, search } = useLocation();
@@ -142,13 +146,13 @@ function App() {
       </div>
       <div className="cursor-glow" aria-hidden="true"></div>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/project" element={<ProjectDetail />} />
+        <Route path="/" element={UNDER_MAINTENANCE ? <Maintenance /> : <Home />} />
+        <Route path="/project" element={UNDER_MAINTENANCE ? <Maintenance /> : <ProjectDetail />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={UNDER_MAINTENANCE ? <Maintenance /> : <Privacy />} />
+        <Route path="/terms" element={UNDER_MAINTENANCE ? <Maintenance /> : <Terms />} />
         <Route path="/maintenance" element={<Maintenance />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={UNDER_MAINTENANCE ? <Maintenance /> : <NotFound />} />
       </Routes>
     </Router>
   );
