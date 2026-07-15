@@ -10,7 +10,7 @@ import Terms from './pages/Terms.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Maintenance from './pages/Maintenance.jsx';
 
-// Toggle this variable to true to place the entire public site under maintenance.
+
 // Keep it as false for normal operation. The /admin panel remains active either way.
 const UNDER_MAINTENANCE = false;
 
