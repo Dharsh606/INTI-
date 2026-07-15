@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <!-- Primary Landing Page -->
   <url>
     <loc>https://inti.design/</loc>
     <lastmod>2026-07-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://inti.design/assets/logo.png</image:loc>
+      <image:title>INTI Luxury Interior Design Studio Logo</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/z1.jpg</image:loc>
+      <image:title>INTI Signature Luxury Space Bangalore</image:title>
+    </image:image>
   </url>
   
   <!-- Standalone Legal Pages -->
@@ -22,41 +31,65 @@
     <priority>0.3</priority>
   </url>
 
-  <!-- Case Studies Details (Vercel Clean URLs) -->
+  <!-- Case Studies Details (Google Image Search Indexing Optimized) -->
   <url>
     <loc>https://inti.design/project?id=hlrc-bangalore</loc>
     <lastmod>2026-07-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-5/img-1.jpg</image:loc>
+      <image:title>HLRC Bangalore Research Lab Lobby Design</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://inti.design/project?id=hul-hosur-conf</loc>
     <lastmod>2026-07-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-1/img-4.jpg</image:loc>
+      <image:title>HUL Hosur Executive Boardroom Conference Table</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://inti.design/project?id=hul-hosur-fm</loc>
     <lastmod>2026-07-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-2/img-1.jpg</image:loc>
+      <image:title>HUL Hosur Executive Facility Management Office</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://inti.design/project?id=ge-hosur-conf-2</loc>
     <lastmod>2026-07-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-6/img-1.jpg</image:loc>
+      <image:title>GE Hosur Executive Boardroom Wood Ceiling Canopy</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://inti.design/project?id=rb-hosur-conf</loc>
     <lastmod>2026-07-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-3/img-1.jpg</image:loc>
+      <image:title>RB Hosur Executive Conference Room Marble Desk</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://inti.design/project?id=rb-hosur-hygiene</loc>
     <lastmod>2026-07-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-4/img-1.jpg</image:loc>
+      <image:title>RB Hosur Hygiene Station Corridor Entrance</image:title>
+    </image:image>
   </url>
 </urlset>
