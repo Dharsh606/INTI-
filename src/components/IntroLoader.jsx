@@ -134,10 +134,24 @@ function IntroLoader({ onComplete }) {
                 color: 'var(--color-gold)',
                 textShadow: '0 0 20px rgba(212,175,122,0.3)',
                 display: 'inline-block',
-                margin: '0 0.1em'
+                margin: '0 0.1em',
+                position: 'relative'
               }}
             >
-              {char}
+              {char === 'Î' ? (
+                <>
+                  I
+                  <span style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    left: '50%',
+                    transform: 'translateX(-50%) scaleX(1.3)',
+                    fontSize: '10px',
+                    color: 'var(--color-gold)',
+                    textShadow: 'none'
+                  }}>▲</span>
+                </>
+              ) : char}
             </span>
           ))}
         </div>
