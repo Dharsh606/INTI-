@@ -141,7 +141,7 @@ function Admin() {
   }, []);
 
   // ----------------------------------------------------
-  // 15-Minute Inactivity Tracker
+  // 5-Minute Inactivity Tracker
   // ----------------------------------------------------
   useEffect(() => {
     if (!session) return;
@@ -150,14 +150,14 @@ function Admin() {
 
     const resetTimer = () => {
       if (timeoutId) clearTimeout(timeoutId);
-      // 15 minutes = 15 * 60 * 1000 = 900,000 ms
+      // 5 minutes = 5 * 60 * 1000 = 300,000 ms
       timeoutId = setTimeout(() => {
         showToast("Session expired due to inactivity. Logging out...", "error");
         setTimeout(async () => {
           await supabase.auth.signOut();
-          window.location.hash = '#/';
+          window.location.href = '/';
         }, 1500);
-      }, 15 * 60 * 1000);
+      }, 5 * 60 * 1000);
     };
 
     const events = ['mousemove', 'mousedown', 'keypress', 'scroll', 'click'];

@@ -679,7 +679,7 @@ function Home() {
 
           {/* Center narrative text */}
           <div className="heritage-center-text">
-            <span className="heritage-eyebrow">Est. 2007</span>
+            <span className="heritage-eyebrow">Est. 2017</span>
             <h2 className="heritage-title-single">A STUDIO BUILT ON VISION</h2>
             <div className="heritage-divider-line"></div>
             <p className="heritage-narrative-paragraph">{statsContent.heritage_body_1}</p>
@@ -695,7 +695,7 @@ function Home() {
               <div className="founder-card-meta">
                 <h3 className="founder-card-name">{statsContent.founder_name || 'Vijaya H. Reddy'}</h3>
                 <p className="founder-card-role">{statsContent.founder_role || 'Principal Designer'}</p>
-                <p className="founder-card-desc">{statsContent.founder_desc || 'Sculpting luxury spaces with architectural integrity since 2007.'}</p>
+                <p className="founder-card-desc">{statsContent.founder_desc || 'Sculpting luxury spaces with architectural integrity since 2017.'}</p>
               </div>
             </div>
           </div>

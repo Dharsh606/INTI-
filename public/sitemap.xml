@@ -4,29 +4,29 @@
   <!-- Primary Landing Page -->
   <url>
     <loc>https://inti.design/</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://inti.design/assets/logo.png</image:loc>
-      <image:title>INTI Luxury Interior Design Studio Logo</image:title>
+      <image:title>INTI Luxury Interior Design Studio Bangalore India Logo</image:title>
     </image:image>
     <image:image>
       <image:loc>https://inti.design/assets/photo/z1.jpg</image:loc>
-      <image:title>INTI Signature Luxury Space Bangalore</image:title>
+      <image:title>INTI Signature Luxury Space Bangalore India</image:title>
     </image:image>
   </url>
   
   <!-- Standalone Legal Pages -->
   <url>
     <loc>https://inti.design/privacy</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://inti.design/terms</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -34,62 +34,163 @@
   <!-- Case Studies Details (Google Image Search Indexing Optimized) -->
   <url>
     <loc>https://inti.design/project?id=hlrc-bangalore</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://inti.design/assets/photo/project-5/img-1.jpg</image:loc>
       <image:title>HLRC Bangalore Research Lab Lobby Design</image:title>
     </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-5/img-2.jpg</image:loc>
+      <image:title>HLRC Bangalore Lounge Waiting Seating Layout</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-5/img-3.jpg</image:loc>
+      <image:title>HLRC Bangalore Custom Metal Sculptures &amp; Mural</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-5/img-4.jpg</image:loc>
+      <image:title>HLRC Bangalore World Map Collaborative Panel</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-5/img-5.jpg</image:loc>
+      <image:title>HLRC Bangalore Research Lobby Workspace Entry</image:title>
+    </image:image>
   </url>
+
   <url>
     <loc>https://inti.design/project?id=hul-hosur-conf</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://inti.design/assets/photo/project-1/img-4.jpg</image:loc>
       <image:title>HUL Hosur Executive Boardroom Conference Table</image:title>
     </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-1/img-1.jpg</image:loc>
+      <image:title>HUL Hosur Boardroom Entrance and Custom Veneer Credenza</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-1/img-2.jpg</image:loc>
+      <image:title>HUL Hosur Modular U-Shaped Desking and Acoustic Ceiling</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-1/img-3.jpg</image:loc>
+      <image:title>HUL Hosur Executive Meeting Space Lighting Detail</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-1/img-5.jpg</image:loc>
+      <image:title>HUL Hosur Corporate Office Conference Design</image:title>
+    </image:image>
   </url>
+
   <url>
     <loc>https://inti.design/project?id=hul-hosur-fm</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://inti.design/assets/photo/project-2/img-1.jpg</image:loc>
       <image:title>HUL Hosur Executive Facility Management Office</image:title>
     </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-2/img-2.jpg</image:loc>
+      <image:title>HUL Hosur FM Office Workspace &amp; Storage Layout</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-2/img-3.jpg</image:loc>
+      <image:title>HUL Hosur FM Office Collaborative Workdesk Grid</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-2/img-4.jpg</image:loc>
+      <image:title>HUL Hosur Facilities Management Room Overhead Plan</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-2/img-5.jpg</image:loc>
+      <image:title>HUL Hosur Corporate Office Management Desk Detail</image:title>
+    </image:image>
   </url>
+
   <url>
     <loc>https://inti.design/project?id=ge-hosur-conf-2</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://inti.design/assets/photo/project-6/img-1.jpg</image:loc>
       <image:title>GE Hosur Executive Boardroom Wood Ceiling Canopy</image:title>
     </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-6/img-2.jpg</image:loc>
+      <image:title>GE Hosur Boardroom Collaboration Screen &amp; Acoustic Wall</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-6/img-3.jpg</image:loc>
+      <image:title>GE Hosur Corporate Boardroom Table &amp; Seating Profile</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-6/img-4.jpg</image:loc>
+      <image:title>GE Hosur Executive Boardroom Portrait Panel Wall</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-6/img-5.jpg</image:loc>
+      <image:title>GE Hosur Facility Management Boardroom Entryway</image:title>
+    </image:image>
   </url>
+
   <url>
     <loc>https://inti.design/project?id=rb-hosur-conf</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://inti.design/assets/photo/project-3/img-1.jpg</image:loc>
       <image:title>RB Hosur Executive Conference Room Marble Desk</image:title>
     </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-3/img-2.jpg</image:loc>
+      <image:title>RB Hosur Reception Hall and Low-Profile Workstations</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-3/img-3.jpg</image:loc>
+      <image:title>RB Hosur Executive Space Plan and Marble Stone Flooring</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-3/img-4.jpg</image:loc>
+      <image:title>RB Hosur Collaboration Area Bio-Centric Plants Shelving</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-3/img-5.jpg</image:loc>
+      <image:title>RB Hosur Corporate Meeting Room Glass Partitions</image:title>
+    </image:image>
   </url>
+
   <url>
     <loc>https://inti.design/project?id=rb-hosur-hygiene</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-07-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://inti.design/assets/photo/project-4/img-1.jpg</image:loc>
       <image:title>RB Hosur Hygiene Station Corridor Entrance</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-4/img-2.jpg</image:loc>
+      <image:title>RB Hosur Sanitation Corridor Washbasin Feature Wall</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-4/img-3.jpg</image:loc>
+      <image:title>RB Hosur Entrance Vestibule Corporate Logo Brand Wall</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-4/img-4.jpg</image:loc>
+      <image:title>RB Hosur Hygiene Station Entrance Sanitation Drains</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://inti.design/assets/photo/project-4/img-5.jpg</image:loc>
+      <image:title>RB Hosur Wellness Entry Sanitation Mirror Details</image:title>
     </image:image>
   </url>
 </urlset>
