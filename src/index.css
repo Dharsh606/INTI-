@@ -57,12 +57,19 @@ ul { list-style: none; }
   top: 0; left: 0;
   width: 60px; height: 60px;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 2147483647;
   transform: translate(-50%, -50%);
   will-change: transform;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Force hide default pointer cursors on desktop to prevent duplicate browser cursors inside modals/buttons */
+@media (min-width: 1025px) {
+  body, a, button, select, input[type="submit"], input[type="button"], .legal-modal-overlay, .modal-overlay, [style*="cursor: pointer"], [style*="cursor:pointer"] {
+    cursor: none !important;
+  }
 }
 .cursor-dot {
   width: 6px; height: 6px;
