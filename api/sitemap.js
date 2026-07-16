@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   try {
     // Fetch project slugs, details, and gallery images from Supabase
     // We target the Supabase REST API (PostgREST) directly using standard fetch
-    const response = await fetch(`${supabaseUrl}/rest/v1/projects?select=slug,updated_at,title,hero_img,gallery_imgs`, {
+    const response = await fetch(`${supabaseUrl}/rest/v1/projects?select=slug,created_at,title,hero_img,gallery_imgs`, {
       headers: {
         'apikey': supabaseKey,
         'Authorization': `Bearer ${supabaseKey}`
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
 
     // Append dynamic projects from the database
     for (const project of projects) {
-      const projectDate = project.updated_at ? project.updated_at.split('T')[0] : currentDate;
+      const projectDate = project.created_at ? project.created_at.split('T')[0] : currentDate;
       
       // Clean and safe titles/images
       const cleanTitle = (project.title || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
