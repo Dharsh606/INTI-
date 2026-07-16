@@ -109,7 +109,7 @@ export default async function handler(req, res) {
 
     // Set XML content type headers and return response
     res.setHeader('Content-Type', 'application/xml');
-    res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate'); // Cache on Edge CDN for 24 hours
+    res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate'); // Cache on Edge CDN for 10 seconds for instant updates
     res.status(200).send(xml);
 
   } catch (error) {
