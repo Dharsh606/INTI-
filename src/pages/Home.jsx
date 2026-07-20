@@ -126,6 +126,16 @@ function Home() {
   // ----------------------------------------------------
   const [activeTab, setActiveTab] = useState('all');
   const [reserveOpen, setReserveOpen] = useState(false);
+  const [phoneVal, setPhoneVal] = useState('');
+
+  const formatPhone = (val) => {
+    const cleaned = val.replace(/\D/g, '');
+    const limited = cleaned.substring(0, 10);
+    if (limited.length > 5) {
+      return `${limited.substring(0, 5)} ${limited.substring(5)}`;
+    }
+    return limited;
+  };
   
   // Style Quiz States
   const [quizOpen, setQuizOpen] = useState(false);
@@ -143,10 +153,45 @@ function Home() {
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
 
+  // Active section scroll tracking state
+  const [activeSection, setActiveSection] = useState('hero');
+
   // Refs for sequential videos
   const video1Ref = useRef(null);
   const video2Ref = useRef(null);
   const canvasRef = useRef(null);
+
+  // Setup IntersectionObserver for active section tracking
+  useEffect(() => {
+    const sections = ['hero', 'signature', 'heritage', 'collection', 'craftsmanship'];
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: '-30% 0px -60% 0px', // Trigger when section occupies the middle of viewport
+      threshold: 0
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        observer.observe(el);
+      }
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   // ----------------------------------------------------
   // Style Quiz Logic
@@ -519,6 +564,9 @@ function Home() {
     };
   }, []);
 
+  // WhatsApp floating button state
+  const [showWhatsapp, setShowWhatsapp] = useState(false);
+
   // ----------------------------------------------------
   // Scroll and Nav tracking (Hide Nav on Scroll Down)
   // ----------------------------------------------------
@@ -533,6 +581,12 @@ function Home() {
         gsap.to(nav, { y: -76, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
       } else {
         gsap.to(nav, { y: 0, duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+      }
+
+      if (scroll > 300) {
+        setShowWhatsapp(true);
+      } else {
+        setShowWhatsapp(false);
       }
 
       lastScroll = scroll;
@@ -597,10 +651,10 @@ function Home() {
         </div>
         <div className="nav-links-right">
           <div className="nav-links">
-            <a href="#signature" onClick={(e) => handleNavClick(e, 'signature')}>Signature</a>
-            <a href="#heritage" onClick={(e) => handleNavClick(e, 'heritage')}>Heritage</a>
-            <a href="#collection" onClick={(e) => handleNavClick(e, 'collection')}>Collection</a>
-            <a href="#craftsmanship" onClick={(e) => handleNavClick(e, 'craftsmanship')}>Craftsmanship</a>
+            <a href="#signature" className={activeSection === 'signature' ? 'active' : ''} onClick={(e) => handleNavClick(e, 'signature')}>Signature</a>
+            <a href="#heritage" className={activeSection === 'heritage' ? 'active' : ''} onClick={(e) => handleNavClick(e, 'heritage')}>Heritage</a>
+            <a href="#collection" className={activeSection === 'collection' ? 'active' : ''} onClick={(e) => handleNavClick(e, 'collection')}>Collection</a>
+            <a href="#craftsmanship" className={activeSection === 'craftsmanship' ? 'active' : ''} onClick={(e) => handleNavClick(e, 'craftsmanship')}>Craftsmanship</a>
           </div>
           <button className="nav-cta open-reserve-modal" onClick={() => setReserveOpen(true)}>Book a Consultation</button>
         </div>
@@ -806,10 +860,11 @@ function Home() {
             <h2 className="showcase-headline">Spaces Beyond<br /><em>Ordinary.</em></h2>
             <p className="showcase-body">A composition of texture, light, and form — where every surface, shadow, and silhouette contributes to the story of the home.</p>
             <button className="showcase-ig-link open-reserve-modal" onClick={() => setReserveOpen(true)}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.5" />
-                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5" />
-                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
               Start a Conversation
             </button>
@@ -840,6 +895,32 @@ function Home() {
               </div>
               <p className="footer-tagline">INTI Works — Spaces shaped with calm, precision, and timeless warmth.</p>
               <p className="footer-founder" style={{ fontFamily: 'var(--font-accent)', fontSize: '11px', color: 'var(--color-gold)', marginTop: '16px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Vijaya H. Reddy &mdash; Founder &amp; Principal Designer</p>
+              <div className="footer-founder-socials" style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+                <a 
+                  href="https://www.instagram.com/inti_vijayareddeydesigns?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="footer-social-icon-link"
+                  aria-label="Instagram"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                  </svg>
+                </a>
+                <a 
+                  href="https://wa.me/919880541336" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="footer-social-icon-link"
+                  aria-label="WhatsApp"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                  </svg>
+                </a>
+              </div>
             </div>
             <div className="footer-col">
               <h5 className="footer-col-title">Services</h5>
@@ -1025,7 +1106,15 @@ function Home() {
               </div>
               <div className="form-group">
                 <label htmlFor="phone">Phone / WhatsApp</label>
-                <input type="tel" id="phone" name="phone" placeholder="+91 xxxxx xxxxx" />
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  name="phone" 
+                  value={phoneVal}
+                  onChange={(e) => setPhoneVal(formatPhone(e.target.value))}
+                  placeholder="xxxxx xxxxx" 
+                  required
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="project-type">Project Type</label>
@@ -1171,6 +1260,19 @@ function Home() {
           </div>
         </div>
       )}
+
+      {/* Floating WhatsApp Contact Icon */}
+      <a 
+        href="https://wa.me/919880541336" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className={`floating-whatsapp-btn ${showWhatsapp ? 'visible' : ''}`}
+        aria-label="Chat on WhatsApp"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+        </svg>
+      </a>
     </>
   );
 }

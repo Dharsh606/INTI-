@@ -186,6 +186,16 @@ function ProjectDetail() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submittingForm, setSubmittingForm] = useState(false);
+  const [phoneVal, setPhoneVal] = useState('');
+
+  const formatPhone = (val) => {
+    const cleaned = val.replace(/\D/g, '');
+    const limited = cleaned.substring(0, 10);
+    if (limited.length > 5) {
+      return `${limited.substring(0, 5)} ${limited.substring(5)}`;
+    }
+    return limited;
+  };
 
   useEffect(() => {
     const loadProject = async () => {
@@ -468,7 +478,15 @@ function ProjectDetail() {
               </div>
               <div className="form-group">
                 <label htmlFor="phone">Phone / WhatsApp</label>
-                <input type="tel" id="phone" name="phone" placeholder="+91 xxxxx xxxxx" />
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  name="phone" 
+                  value={phoneVal}
+                  onChange={(e) => setPhoneVal(formatPhone(e.target.value))}
+                  placeholder="xxxxx xxxxx" 
+                  required
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="project-type">Project Type</label>
