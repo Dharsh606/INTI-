@@ -676,7 +676,20 @@ function Home() {
         <div className="hero-content">
           <div className="hero-text-bg" aria-hidden="true">INTI</div>
           <div className="hero-details">
-            <h1 className="hero-title">{homeContent.hero_title.split(' That ')[0]}<br /><span className="accent">That {homeContent.hero_title.split(' That ')[1] || 'Feel Alive'}</span></h1>
+            <h1 className="hero-title">
+              {(() => {
+                const parts = (homeContent.hero_title || '').split(/\s+[tT]hat\s+/);
+                if (parts.length > 1) {
+                  return (
+                    <>
+                      {parts[0]}<br />
+                      <span className="accent">That {parts[1]}</span>
+                    </>
+                  );
+                }
+                return homeContent.hero_title;
+              })()}
+            </h1>
             <p className="hero-subtitle">{homeContent.hero_subtitle}</p>
             <div className="hero-cta-group">
               <span className="limited-edition">Selected Projects</span>
@@ -703,7 +716,20 @@ function Home() {
           </div>
           <div className="product-reveal-details">
             <span className="edition-tag">Signature Project</span>
-            <h2 className="product-reveal-title">{homeContent.signature_title.split(' For ')[0]}<br /><span className="accent-gold">For {homeContent.signature_title.split(' For ')[1] || 'The Way You Live'}</span></h2>
+            <h2 className="product-reveal-title">
+              {(() => {
+                const parts = (homeContent.signature_title || '').split(/\s+[fF]or\s+/);
+                if (parts.length > 1) {
+                  return (
+                    <>
+                      {parts[0]}<br />
+                      <span className="accent-gold">For {parts[1]}</span>
+                    </>
+                  );
+                }
+                return homeContent.signature_title;
+              })()}
+            </h2>
             <p className="product-reveal-subtitle">{homeContent.signature_subtitle}</p>
             <div className="product-reveal-cta-group">
               <button className="secondary-btn open-reserve-modal" onClick={() => setReserveOpen(true)}>Begin Your Project</button>
@@ -894,7 +920,9 @@ function Home() {
                 <img src="/assets/logo.png" alt="INTI Logo" className="footer-logo-img" />
               </div>
               <p className="footer-tagline">INTI Works — Spaces shaped with calm, precision, and timeless warmth.</p>
-              <p className="footer-founder" style={{ fontFamily: 'var(--font-accent)', fontSize: '11px', color: 'var(--color-gold)', marginTop: '16px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Vijaya H. Reddy &mdash; Founder &amp; Principal Designer</p>
+              <p className="footer-founder" style={{ fontFamily: 'var(--font-accent)', fontSize: '11px', color: 'var(--color-gold)', marginTop: '16px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                {statsContent.founder_name || 'Vijaya H. Reddy'} &mdash; {statsContent.founder_role || 'Founder & Principal Designer'}
+              </p>
               <div className="footer-founder-socials" style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
                 <a 
                   href="https://www.instagram.com/inti_vijayareddeydesigns?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" 
