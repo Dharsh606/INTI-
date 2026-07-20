@@ -427,6 +427,8 @@ function Home() {
     const images = [];
     let imagesLoaded = 0;
     let currentProgress = 0;
+    let isCancelled = false;
+    let ctxGsap = null;
 
     const setCanvasSize = () => {
       canvas.width = window.innerWidth;
@@ -441,20 +443,17 @@ function Home() {
       const numImages = images.length;
       const canvasAspect = canvas.width / canvas.height;
 
-      // Map progress (0 to 1) into indices
       const indexFloat = progress * (numImages - 1);
       const baseIndex = Math.floor(indexFloat);
       const nextIndex = Math.min(baseIndex + 1, numImages - 1);
-      const localFrac = indexFloat - baseIndex; // float fraction between 0 and 1
+      const localFrac = indexFloat - baseIndex;
 
-      // 0.0 to 0.6 is solid static display of current image.
-      // 0.6 to 1.0 is smooth transition to the next image.
       let baseAlpha = 1;
       let nextAlpha = 0;
 
       if (localFrac > 0.6) {
         const t = (localFrac - 0.6) / 0.4;
-        const easeT = t * t * (3 - 2 * t); // smoothstep interpolation
+        const easeT = t * t * (3 - 2 * t);
         nextAlpha = easeT;
         baseAlpha = 1 - easeT;
       }
@@ -466,7 +465,6 @@ function Home() {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw primary base image
       const img = images[baseIndex];
       if (img && img.complete && baseAlpha > 0) {
         const aspect = img.naturalWidth / img.naturalHeight;
@@ -478,7 +476,6 @@ function Home() {
         ctx.drawImage(img, dX, dY, dW, dH);
       }
 
-      // Draw overlay next image during transition segment
       const nextImg = images[nextIndex];
       if (baseIndex !== nextIndex && nextImg && nextImg.complete && nextAlpha > 0) {
         const aspect = nextImg.naturalWidth / nextImg.naturalHeight;
@@ -490,7 +487,6 @@ function Home() {
         ctx.drawImage(nextImg, dX, dY, dW, dH);
       }
 
-      // Restore alpha and apply atmospheric shading layer (0.3 overlay)
       ctx.globalAlpha = 1;
       ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -500,6 +496,7 @@ function Home() {
       const img = new Image();
       img.src = src;
       img.onload = () => {
+        if (isCancelled) return;
         imagesLoaded++;
         images[i] = img;
         if (imagesLoaded === imageSources.length) {
@@ -508,38 +505,42 @@ function Home() {
         }
       };
       img.onerror = () => {
+        if (isCancelled) return;
         imagesLoaded++;
       };
     });
 
-    let scrollTriggerInstance;
-
     function initScrollTriggerAnim() {
-      scrollTriggerInstance = ScrollTrigger.create({
-        trigger: '#craftsmanship',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.5,
-        onUpdate: (self) => {
-          currentProgress = self.progress;
-          drawFrame(currentProgress);
-        }
-      });
+      if (isCancelled) return;
 
-      // Text animations
-      gsap.to(".dismantle-header", {
-        x: '-120%', opacity: 0, ease: 'power2.in',
-        scrollTrigger: { trigger: '#craftsmanship', start: 'top 10%', end: 'top -30%', scrub: 1 }
-      });
-      gsap.fromTo(".dismantle-overlay-text", { opacity: 0, y: 20 }, {
-        opacity: 1, y: 0, ease: 'none',
-        scrollTrigger: { trigger: '#craftsmanship', start: 'top 40%', end: 'top 20%', scrub: 1 }
+      ctxGsap = gsap.context(() => {
+        ScrollTrigger.create({
+          trigger: '#craftsmanship',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.5,
+          onUpdate: (self) => {
+            currentProgress = self.progress;
+            drawFrame(currentProgress);
+          }
+        });
+
+        // Text animations
+        gsap.to(".dismantle-header", {
+          x: '-120%', opacity: 0, ease: 'power2.in',
+          scrollTrigger: { trigger: '#craftsmanship', start: 'top 10%', end: 'top -30%', scrub: 1 }
+        });
+        gsap.fromTo(".dismantle-overlay-text", { opacity: 0, y: 20 }, {
+          opacity: 1, y: 0, ease: 'none',
+          scrollTrigger: { trigger: '#craftsmanship', start: 'top 40%', end: 'top 20%', scrub: 1 }
+        });
       });
     }
 
     return () => {
+      isCancelled = true;
       window.removeEventListener('resize', setCanvasSize);
-      if (scrollTriggerInstance) scrollTriggerInstance.kill();
+      if (ctxGsap) ctxGsap.revert();
     };
   }, [homeContent.architecture_imgs]);
 
