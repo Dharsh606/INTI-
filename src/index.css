@@ -802,7 +802,7 @@ ul { list-style: none; }
 
 /* ================================ CRAFTSMANSHIP ================================ */
 .dismantle {
-  position: relative; height: 300vh;
+  position: relative; height: 450vh;
   background: var(--color-bg); z-index: 15;
 }
 .dismantle-container {

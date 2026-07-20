@@ -426,47 +426,73 @@ function Home() {
         ];
     const images = [];
     let imagesLoaded = 0;
-    const frameObject = { frame: 0 };
+    let currentProgress = 0;
 
     const setCanvasSize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      drawFrame(frameObject.frame);
+      drawFrame(currentProgress);
     };
 
     window.addEventListener('resize', setCanvasSize);
 
-    function drawFrame(frameIndex) {
+    function drawFrame(progress) {
       if (images.length === 0) return;
-      const totalFrames = 100;
-      const imgIndex = Math.min(Math.floor((frameIndex / totalFrames) * (images.length - 1)), images.length - 1);
-      const nextImgIndex = Math.min(imgIndex + 1, images.length - 1);
-      const localProgress = ((frameIndex / totalFrames) * (images.length - 1)) % 1;
-      const img = images[imgIndex];
-      const nextImg = images[nextImgIndex];
-      if (!img || !img.complete) return;
+      const numImages = images.length;
+      const canvasAspect = canvas.width / canvas.height;
+
+      // Map progress (0 to 1) into indices
+      const indexFloat = progress * (numImages - 1);
+      const baseIndex = Math.floor(indexFloat);
+      const nextIndex = Math.min(baseIndex + 1, numImages - 1);
+      const localFrac = indexFloat - baseIndex; // float fraction between 0 and 1
+
+      // 0.0 to 0.6 is solid static display of current image.
+      // 0.6 to 1.0 is smooth transition to the next image.
+      let baseAlpha = 1;
+      let nextAlpha = 0;
+
+      if (localFrac > 0.6) {
+        const t = (localFrac - 0.6) / 0.4;
+        const easeT = t * t * (3 - 2 * t); // smoothstep interpolation
+        nextAlpha = easeT;
+        baseAlpha = 1 - easeT;
+      }
+
+      if (baseIndex === nextIndex) {
+        baseAlpha = 1;
+        nextAlpha = 0;
+      }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const aspect = img.naturalWidth / img.naturalHeight;
-      const canvasAspect = canvas.width / canvas.height;
-      let dW, dH, dX, dY;
-      if (aspect > canvasAspect) { dH = canvas.height; dW = dH * aspect; dX = (canvas.width - dW) / 2; dY = 0; }
-      else { dW = canvas.width; dH = dW / aspect; dX = 0; dY = (canvas.height - dH) / 2; }
 
-      ctx.globalAlpha = 1;
-      ctx.drawImage(img, dX, dY, dW, dH);
-
-      if (nextImg && nextImg.complete && localProgress > 0.7) {
-        const fadeAlpha = (localProgress - 0.7) / 0.3;
-        const nA = nextImg.naturalWidth / nextImg.naturalHeight;
-        let nW, nH, nX, nY;
-        if (nA > canvasAspect) { nH = canvas.height; nW = nH * nA; nX = (canvas.width - nW) / 2; nY = 0; }
-        else { nW = canvas.width; nH = nW / nA; nX = 0; nY = (canvas.height - nH) / 2; }
-        ctx.globalAlpha = fadeAlpha;
-        ctx.drawImage(nextImg, nX, nY, nW, nH);
-        ctx.globalAlpha = 1;
+      // Draw primary base image
+      const img = images[baseIndex];
+      if (img && img.complete && baseAlpha > 0) {
+        const aspect = img.naturalWidth / img.naturalHeight;
+        let dW, dH, dX, dY;
+        if (aspect > canvasAspect) { dH = canvas.height; dW = dH * aspect; dX = (canvas.width - dW) / 2; dY = 0; }
+        else { dW = canvas.width; dH = dW / aspect; dX = 0; dY = (canvas.height - dH) / 2; }
+        
+        ctx.globalAlpha = baseAlpha;
+        ctx.drawImage(img, dX, dY, dW, dH);
       }
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+
+      // Draw overlay next image during transition segment
+      const nextImg = images[nextIndex];
+      if (baseIndex !== nextIndex && nextImg && nextImg.complete && nextAlpha > 0) {
+        const aspect = nextImg.naturalWidth / nextImg.naturalHeight;
+        let dW, dH, dX, dY;
+        if (aspect > canvasAspect) { dH = canvas.height; dW = dH * aspect; dX = (canvas.width - dW) / 2; dY = 0; }
+        else { dW = canvas.width; dH = dW / aspect; dX = 0; dY = (canvas.height - dH) / 2; }
+
+        ctx.globalAlpha = nextAlpha;
+        ctx.drawImage(nextImg, dX, dY, dW, dH);
+      }
+
+      // Restore alpha and apply atmospheric shading layer (0.3 overlay)
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -495,9 +521,8 @@ function Home() {
         end: 'bottom bottom',
         scrub: 0.5,
         onUpdate: (self) => {
-          const progress = self.progress;
-          frameObject.frame = progress * 99;
-          drawFrame(Math.round(frameObject.frame));
+          currentProgress = self.progress;
+          drawFrame(currentProgress);
         }
       });
 
